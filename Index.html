@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cergy United 95</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Mise en page : colonne unique, équipes en premier, puis joueurs, réglages, contraintes, historique.
+   Idée visuelle : deux chasubles (orange et bleue) sur fond de terrain. */
+:root {
+  --bg: #F1F4EE;
+  --surface: #FFFFFF;
+  --field: #FFFFFF;
+  --ink: #14251B;
+  --muted: #56665B;
+  --line: #D3DBD0;
+  --pitch: #1E6B3A;
+  --on-pitch: #FFFFFF;
+  --team-a: #C2410C;
+  --team-b: #1D4ED8;
+  --on-team: #FFFFFF;
+  --soft-green: #DDEBDD;
+  --soft-green-ink: #1B5A32;
+  --soft-amber: #F3E6C4;
+  --soft-amber-ink: #6E5100;
+  --warn: #9A3412;
+  --focus: #1D4ED8;
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1812; --surface: #15231B; --field: #0E1812; --ink: #E7EFE8; --muted: #9BAEA1; --line: #27382E;
+    --pitch: #4DB878; --on-pitch: #07140C; --team-a: #D2551A; --team-b: #3B6FE0; --on-team: #FFFFFF;
+    --soft-green: #1E3A2A; --soft-green-ink: #A5DDB8; --soft-amber: #3B3216; --soft-amber-ink: #E8CD7A;
+    --warn: #F4A27A; --focus: #8DB4FF; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1812; --surface: #15231B; --field: #0E1812; --ink: #E7EFE8; --muted: #9BAEA1; --line: #27382E;
+  --pitch: #4DB878; --on-pitch: #07140C; --team-a: #D2551A; --team-b: #3B6FE0; --on-team: #FFFFFF;
+  --soft-green: #1E3A2A; --soft-green-ink: #A5DDB8; --soft-amber: #3B3216; --soft-amber-ink: #E8CD7A;
+  --warn: #F4A27A; --focus: #8DB4FF; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 700; margin: 0; line-height: 1.1; text-wrap: balance; }
+h1 { font-size: 2.6rem; letter-spacing: .01em; text-transform: uppercase; }
+h2 { font-size: 1.5rem; letter-spacing: .02em; text-transform: uppercase; }
+h3 { font-size: 1.15rem; letter-spacing: .03em; text-transform: uppercase; }
+p { margin: 0; }
+.kicker { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+.qbadge { font-family: var(--display); font-size: 1.6rem; font-weight: 700; background: var(--ink); color: var(--bg); padding: 2px 12px; border-radius: 4px; letter-spacing: .04em; }
+section { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+.note { background: var(--soft-amber); color: var(--soft-amber-ink); padding: 10px 12px; border-radius: 6px; font-size: .9rem; }
+.warn { color: var(--warn); font-weight: 500; }
+.pill { display: inline-block; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 99px; background: var(--soft-amber); color: var(--soft-amber-ink); }
+.pill.ok { background: var(--soft-green); color: var(--soft-green-ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { font: inherit; font-weight: 600; min-height: 46px; padding: 0 18px; border-radius: 6px; border: 2px solid var(--pitch); background: var(--pitch); color: var(--on-pitch); cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.sec { background: transparent; color: var(--pitch); }
+.btn:hover { filter: brightness(1.06); }
+.btn:focus-visible, .lnk:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.lnk { font: inherit; font-size: .82rem; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 6px 4px; min-height: 32px; }
+.lnk:hover { color: var(--ink); }
+.status { min-height: 1.4em; font-size: .9rem; }
+.teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.team { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; min-width: 0; }
+.team-head { background: var(--team-a); color: var(--on-team); padding: 10px 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.team.b .team-head { background: var(--team-b); }
+.team-head h3 { font-size: 1.6rem; }
+.team-head span { font-size: .85rem; font-weight: 500; }
+.recap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.recap b { color: var(--ink); font-weight: 600; }
+.recap .full { grid-column: 1 / -1; }
+.grp { padding: 8px 14px 4px; }
+.grp h4 { font-size: .9rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2px; }
+.grp.bench { background: var(--bg); margin-top: 8px; padding-bottom: 10px; border-top: 1px solid var(--line); }
+ul.pl { list-style: none; margin: 0; padding: 0; }
+.pl li { display: flex; align-items: center; gap: 8px; padding: 4px 0; min-width: 0; flex-wrap: wrap; }
+.pl .nm { font-weight: 500; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pl .ps { font-size: .75rem; color: var(--muted); }
+.st { color: var(--team-a); letter-spacing: 1px; font-size: .85rem; }
+.team.b .st { color: var(--team-b); }
+.rg { font-size: .72rem; font-weight: 600; padding: 1px 7px; border-radius: 99px; background: var(--soft-green); color: var(--soft-green-ink); }
+.rg.O { background: var(--soft-amber); color: var(--soft-amber-ink); }
+.rg.X { background: var(--line); color: var(--muted); }
+.pl li.rep { background: var(--bg); border-radius: 6px; padding: 8px; gap: 8px; }
+.team-foot { height: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 4px 12px; font-size: .88rem; }
+.empty { border: 2px dashed var(--line); border-radius: 6px; padding: 22px 16px; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px; }
+label { font-weight: 600; font-size: .88rem; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+textarea, select, input[type="text"], input[type="number"] {
+  font: inherit; font-weight: 400; color: var(--ink); background: var(--field); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; min-height: 44px; width: 100%; min-width: 0;
+}
+textarea { min-height: 128px; resize: vertical; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.row > * { flex: 1 1 140px; }
+.row.nums > * { flex: 1 1 120px; }
+.row > .btn { flex: 0 0 auto; }
+.chk { flex-direction: row; align-items: center; gap: 10px; font-weight: 500; }
+.chk input { width: 22px; height: 22px; min-height: 0; flex: 0 0 auto; accent-color: var(--pitch); }
+.rr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 10px; align-items: center; padding: 5px 0; border-top: 1px solid var(--line); }
+.rr:first-child { border-top: 0; }
+.rr .who { overflow-wrap: anywhere; }
+.rr .who i { font-style: normal; color: var(--muted); font-size: .8rem; margin-left: 6px; }
+.cons { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.cons li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
+summary { cursor: pointer; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+.hist-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; margin-top: 8px; font-size: .88rem; }
+.hist-cols b { font-family: var(--display); font-size: 1rem; letter-spacing: .04em; text-transform: uppercase; }
+@media (prefers-reduced-motion: no-preference) { .btn { transition: filter .15s; } }
+@media (max-width: 480px) { h1 { font-size: 2.1rem; } .rr { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+
+
+<main class="wrap">
+  <header class="top">
+    <div>
+      <p class="kicker">#CU95 · Équipes du samedi</p>
+      <h1>Cergy United 95</h1>
+    </div>
+    <div class="qbadge" id="qbadge" aria-label="Trimestre en cours"></div>
+  </header>
+
+  <section id="sec-teams" aria-labelledby="h-teams">
+    <div class="sec-head">
+      <h2 id="h-teams">Les deux équipes</h2>
+      <span id="state-pill"></span>
+    </div>
+    <p class="note" id="example-note" hidden>Liste d'exemple chargée (26 joueurs, 11 titulaires par équipe). Remplacez les noms par vos joueurs dans la section « Joueurs » plus bas, puis cliquez sur « Mélanger à nouveau ».</p>
+    <div class="actions" id="actions"></div>
+    <p class="status" id="status" role="status"></p>
+    <div id="fallback"></div>
+    <div id="teams"></div>
+    <div id="extra"></div>
+  </section>
+
+  <section id="sec-players" aria-labelledby="h-players">
+    <h2 id="h-players">Joueurs</h2>
+    <p class="muted small">Un joueur par ligne (ou séparés par des virgules). Une étoile devant le nom marque un joueur fort, deux étoiles un joueur très fort : le tirage les répartit entre les deux équipes.</p>
+    <div class="grid4" id="roster-fields"></div>
+    <div class="card">
+      <h3>Régularité de chaque joueur</h3>
+      <p class="muted small">Dans chaque équipe, les réguliers sont titulaires en premier, puis les occasionnels, puis les rares. Le reste forme le banc.</p>
+      <div id="reg-list"></div>
+    </div>
+    <div class="card">
+      <h3>Ajouter un joueur</h3>
+      <p class="muted small">Si les équipes existent déjà, le nouveau joueur rejoint l'équipe la plus faible à son poste.</p>
+      <div class="row">
+        <label for="np-name">Nom<input type="text" id="np-name" autocomplete="off"></label>
+        <label for="np-pos">Poste
+          <select id="np-pos"></select>
+        </label>
+        <label for="np-stars">Étoiles
+          <select id="np-stars"><option value="0">Aucune</option><option value="1">★ Fort</option><option value="2">★★ Très fort</option></select>
+        </label>
+        <label for="np-reg">Régularité
+          <select id="np-reg"><option value="R">Régulier</option><option value="O">Occasionnel</option><option value="X">Rare</option></select>
+        </label>
+        <button class="btn sec" data-act="add-player" type="button">Ajouter</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="sec-settings" aria-labelledby="h-settings">
+    <h2 id="h-settings">Réglages du trimestre</h2>
+    <div class="card">
+      <div class="row">
+        <label for="q-sel">Trimestre
+          <select id="q-sel"><option value="1">T1 (jan. à mars)</option><option value="2">T2 (avr. à juin)</option><option value="3">T3 (juil. à sept.)</option><option value="4">T4 (oct. à déc.)</option></select>
+        </label>
+        <label for="q-year">Année<input type="number" id="q-year" min="2000" max="2100"></label>
+      </div>
+      <h3>Les titulaires de chaque équipe</h3>
+      <p class="muted small">Tous les joueurs sont répartis entre les deux équipes, équilibrées par poste. Chaque équipe aligne ensuite ses titulaires selon cette composition, et les autres restent remplaçants.</p>
+      <div class="row nums" id="f-fields"></div>
+      <p class="small" id="f-total"></p>
+      <label class="chk" for="avoid"><input type="checkbox" id="avoid"> Éviter de reformer les mêmes équipes que le trimestre précédent</label>
+    </div>
+  </section>
+
+  <section id="sec-cons" aria-labelledby="h-cons">
+    <h2 id="h-cons">Contraintes entre joueurs</h2>
+    <div class="card">
+      <p class="muted small">Pour garder deux joueurs dans la même équipe (frères, covoiturage) ou toujours les séparer.</p>
+      <div class="row">
+        <label for="c-a">Joueur 1<select id="c-a"></select></label>
+        <label for="c-t">Règle
+          <select id="c-t"><option value="together">Toujours ensemble</option><option value="apart">Toujours séparés</option></select>
+        </label>
+        <label for="c-b">Joueur 2<select id="c-b"></select></label>
+        <button class="btn sec" data-act="add-cons" type="button">Ajouter</button>
+      </div>
+      <ul class="cons" id="cons-list"></ul>
+    </div>
+  </section>
+
+  <section id="sec-hist" aria-labelledby="h-hist">
+    <h2 id="h-hist">Historique des trimestres</h2>
+    <div id="hist"></div>
+  </section>
+
+  <section aria-label="Données">
+    <div class="actions" id="reset-zone"></div>
+    <p class="muted small">La liste, les équipes et l'historique sont enregistrés dans ce navigateur, sur cet appareil.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var POS = [
+    { k: 'G', label: 'Gardiens', one: 'Gardien', abbr: 'Gar.' },
+    { k: 'LAT', label: 'Latéraux', one: 'Latéral', abbr: 'Lat.' },
+    { k: 'DC', label: 'Défenseurs centraux', one: 'Défenseur central', abbr: 'DC' },
+    { k: 'MDF', label: 'Milieux défensifs', one: 'Milieu défensif', abbr: 'MDéf.' },
+    { k: 'MOF', label: 'Milieux offensifs', one: 'Milieu offensif', abbr: 'MOff.' },
+    { k: 'AIL', label: 'Ailiers', one: 'Ailier', abbr: 'Ail.' },
+    { k: 'BUT', label: 'Buteurs', one: 'Buteur', abbr: 'But.' }
+  ];
+  var REG = { R: 'Régulier', O: 'Occasionnel', X: 'Rare' };
+  var REG_SHORT = { R: 'Rég.', O: 'Occ.', X: 'Rare' };
+  var RANK = { R: 0, O: 1, X: 2 };
+  var STORE = 'cergy-united-95-v3';
+  var ABBR = {}; POS.forEach(function (p) { ABBR[p.k] = p.abbr; });
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  function exampleState() {
+    var d = new Date();
+    return {
+      roster: {
+        G: '*Moussa\nAli\nIbrahim',
+        LAT: 'Karim\nSamuel\nHugo\nMehdi',
+        DC: '**Paul\n*Jean\nYacine\nBakary',
+        MDF: '*Eric\nYann\nOmar\nThomas',
+        MOF: '*David\nNabil\nRayan',
+        AIL: '*Sofiane\nBastien\nLéo\nJordan',
+        BUT: '**Idriss\nMarc\n*Anto\nKevin'
+      },
+      reg: { 'AIL|léo': 'X', 'AIL|bastien': 'X', 'LAT|hugo': 'X', 'DC|yacine': 'O', 'BUT|anto': 'O', 'MDF|omar': 'O', 'MDF|yann': 'O', 'AIL|jordan': 'O', 'G|ibrahim': 'O' },
+      formation: { G: 1, LAT: 2, DC: 2, MDF: 2, MOF: 1, AIL: 2, BUT: 1 },
+      quarter: Math.floor(d.getMonth() / 3) + 1, year: d.getFullYear(),
+      avoidRepeat: true, constraints: [], teams: null, locked: false, history: [], example: true
+    };
+  }
+  function load() {
+    try { var raw = localStorage.getItem(STORE); if (raw) { var s = JSON.parse(raw); if (s && s.roster && s.formation) return s; } } catch (e) {}
+    return null;
+  }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+
+  var state = load() || exampleState();
+  var ui = { replacing: null, confirmUnlock: false, confirmReset: false };
+
+  function lbl() { return 'T' + state.quarter + ' ' + state.year; }
+  function startSize() { return POS.reduce(function (a, ps) { return a + (state.formation[ps.k] || 0); }, 0); }
+
+  /* Lecture de la liste saisie */
+  function parsePlayers() {
+    var list = [], map = {};
+    POS.forEach(function (ps) {
+      var tokens = String(state.roster[ps.k] || '').split(/[\n,;]+/);
+      tokens.forEach(function (t) {
+        t = t.trim(); if (!t) return;
+        var m = t.match(/^(\*{1,3})\s*(.+)$/);
+        var stars = m ? m[1].length : 0;
+        var name = (m ? m[2] : t).trim(); if (!name) return;
+        var key = ps.k + '|' + name.toLowerCase();
+        if (map[key]) return;
+        var p = { key: key, name: name, pos: ps.k, stars: stars, reg: state.reg[key] || 'R' };
+        map[key] = p; list.push(p);
+      });
+    });
+    return { list: list, map: map };
+  }
+  function cmp(a, b) { return (b.stars - a.stars) || a.name.localeCompare(b.name, 'fr'); }
+  function allKeys(side) { return state.teams[side].s.concat(state.teams[side].b); }
+
+  /* Équipes du trimestre précédent : clé du joueur vers côté (0 pour A, 1 pour B) */
+  function previousSides() {
+    var res = null;
+    for (var i = state.history.length - 1; i >= 0; i--) {
+      if (state.history[i].label !== lbl()) { res = state.history[i]; break; }
+    }
+    var m = {};
+    if (!res) return m;
+    res.A.forEach(function (p) { m[p.k] = 0; });
+    res.B.forEach(function (p) { m[p.k] = 1; });
+    return m;
+  }
+
+  /* Tirage : tous les joueurs sont répartis en deux équipes équilibrées (recherche locale),
+     puis chaque équipe désigne ses titulaires selon la composition et la régularité. */
+  function generate() {
+    var P = parsePlayers(), list = P.list, n = list.length;
+    if (n < 2) return { ok: false, msg: 'Ajoutez au moins deux joueurs pour former des équipes.' };
+    var size = startSize();
+    if (size < 1) return { ok: false, msg: 'Indiquez au moins un titulaire dans la composition.' };
+
+    var rnd = list.map(function () { return Math.random(); });
+    var ord = list.map(function (_, i) { return i; }).sort(function (a, b) { return (RANK[list[a].reg] - RANK[list[b].reg]) || (rnd[a] - rnd[b]); });
+    function starters(as) {
+      var st = new Array(n), cnt = [0, 0], need = [Object.assign({}, state.formation), Object.assign({}, state.formation)], i, k, s;
+      for (k = 0; k < n; k++) { i = ord[k]; s = as[i]; if (need[s][list[i].pos] > 0) { need[s][list[i].pos]--; st[i] = true; cnt[s]++; } }
+      for (k = 0; k < n; k++) { i = ord[k]; s = as[i]; if (!st[i] && cnt[s] < size) { st[i] = true; cnt[s]++; } }
+      return st;
+    }
+
+    var idx = {};
+    list.forEach(function (p, i) { idx[p.key] = i; });
+    var cons = state.constraints.filter(function (c) { return idx[c.a] !== undefined && idx[c.b] !== undefined; })
+      .map(function (c) { return { a: idx[c.a], b: idx[c.b], t: c.type }; });
+    var prev = previousSides(), prevPairs = [];
+    if (state.avoidRepeat) {
+      for (var x = 0; x < n; x++) for (var y = x + 1; y < n; y++) {
+        var sx = prev[list[x].key], sy = prev[list[y].key];
+        if (sx !== undefined && sx === sy) prevPairs.push([x, y]);
+      }
+    }
+    function f(a, b) { return Math.max(0, Math.abs(a - b) - ((a + b) % 2)); }
+    function score(as) {
+      var size2 = [0, 0], cnt = {};
+      POS.forEach(function (ps) { cnt[ps.k] = [0, 0]; });
+      var ss = [0, 0], stc = [0, 0], db = [0, 0], tier = { R: [0, 0], O: [0, 0], X: [0, 0] };
+      var sst = [0, 0], sc2 = [0, 0], i, pen = 0, st = starters(as);
+      for (i = 0; i < n; i++) {
+        var s = as[i], p = list[i];
+        size2[s]++; cnt[p.pos][s]++; ss[s] += p.stars; tier[p.reg][s]++;
+        if (p.stars > 0) stc[s]++;
+        if (p.stars > 1) db[s]++;
+        if (st[i]) { sst[s] += p.stars; if (p.stars > 0) sc2[s]++; }
+      }
+      pen += 1000 * f(size2[0], size2[1]);
+      POS.forEach(function (ps) { pen += (ps.k === 'G' ? 200 : 60) * f(cnt[ps.k][0], cnt[ps.k][1]); });
+      pen += 40 * f(stc[0], stc[1]) + 5 * Math.abs(stc[0] - stc[1]);
+      pen += 40 * f(db[0], db[1]);
+      pen += 20 * Math.abs(ss[0] - ss[1]);
+      pen += 25 * f(sc2[0], sc2[1]) + 10 * Math.abs(sst[0] - sst[1]);
+      pen += 12 * (f(tier.R[0], tier.R[1]) + f(tier.O[0], tier.O[1]) + f(tier.X[0], tier.X[1]));
+      cons.forEach(function (c) {
+        var same = as[c.a] === as[c.b];
+        if ((c.t === 'together' && !same) || (c.t === 'apart' && same)) pen += 500;
+      });
+      prevPairs.forEach(function (pr) { if (as[pr[0]] === as[pr[1]]) pen += 1.5; });
+      return pen;
+    }
+    var best = null, bestScore = Infinity, half = Math.ceil(n / 2);
+    for (var r = 0; r < 25; r++) {
+      var order = shuffle(list.map(function (_, i) { return i; }));
+      var as = new Array(n);
+      order.forEach(function (pi, k) { as[pi] = k < half ? 0 : 1; });
+      var cur = score(as), improved = true, guard = 0;
+      while (improved && guard++ < 40) {
+        improved = false;
+        for (var a = 0; a < n; a++) for (var b = a + 1; b < n; b++) {
+          if (as[a] === as[b]) continue;
+          var t = as[a]; as[a] = as[b]; as[b] = t;
+          var sc = score(as);
+          if (sc < cur - 1e-9) { cur = sc; improved = true; } else { t = as[a]; as[a] = as[b]; as[b] = t; }
+        }
+      }
+      if (cur < bestScore) { bestScore = cur; best = as.slice(); }
+    }
+    var st = starters(best), T = { A: { s: [], b: [] }, B: { s: [], b: [] } };
+    ord.forEach(function (i) { T[best[i] === 0 ? 'A' : 'B'][st[i] ? 's' : 'b'].push(list[i].key); });
+    state.teams = T;
+    state.locked = false;
+    var msgs = [];
+    if (n < 2 * size) msgs.push('Il y a ' + n + ' joueurs pour ' + (2 * size) + ' places de titulaires : pas de remplaçants à répartir.');
+    var broken = cons.filter(function (c) { var same = best[c.a] === best[c.b]; return (c.t === 'together' && !same) || (c.t === 'apart' && same); }).length;
+    if (broken) msgs.push(broken + ' contrainte(s) entre joueurs n\'ont pas pu être respectées.');
+    return { ok: true, msg: msgs.join(' ') };
+  }
+
+  /* Affichage */
+  function starsStr(n) { return n ? '★'.repeat(n) : ''; }
+  function resolve(keys, map) { return keys.map(function (k) { return map[k]; }).filter(Boolean); }
+
+  function setStatus(text, isWarn) {
+    var el = $('status'); el.textContent = text || ''; el.className = 'status' + (isWarn ? ' warn' : '');
+  }
+
+  function renderFormationTotal() {
+    var s = startSize();
+    $('f-total').innerHTML = '= <b>' + s + '</b> titulaires par équipe' + (s !== 11 ? ' <span class="warn">(le foot à 11 en demande 11)</span>' : '');
+  }
+  function renderHeader() {
+    $('qbadge').textContent = lbl();
+    $('q-sel').value = String(state.quarter);
+    $('q-year').value = state.year;
+    POS.forEach(function (ps) { $('f-' + ps.k).value = state.formation[ps.k]; });
+    renderFormationTotal();
+    $('avoid').checked = !!state.avoidRepeat;
+    $('example-note').hidden = !state.example;
+  }
+
+  function renderStaticFields() {
+    $('np-pos').innerHTML = POS.map(function (ps) { return '<option value="' + ps.k + '">' + ps.one + '</option>'; }).join('');
+    $('f-fields').innerHTML = POS.map(function (ps) {
+      return '<label for="f-' + ps.k + '">' + ps.label + '<input type="number" id="f-' + ps.k + '" min="0" max="11"></label>';
+    }).join('');
+  }
+  function renderRosterFields() {
+    var html = '';
+    POS.forEach(function (ps) {
+      html += '<label for="ta-' + ps.k + '">' + ps.label + '<textarea id="ta-' + ps.k + '" data-pos="' + ps.k + '" spellcheck="false"></textarea></label>';
+    });
+    $('roster-fields').innerHTML = html;
+    POS.forEach(function (ps) { $('ta-' + ps.k).value = state.roster[ps.k] || ''; });
+  }
+
+  function renderRegList() {
+    var P = parsePlayers(), html = '';
+    if (!P.list.length) html = '<p class="muted">Aucun joueur pour l\'instant.</p>';
+    POS.forEach(function (ps) {
+      P.list.filter(function (p) { return p.pos === ps.k; }).forEach(function (p) {
+        html += '<div class="rr"><span class="who">' + esc(p.name) + (p.stars ? ' <span class="st" style="color:var(--muted)">' + starsStr(p.stars) + '</span>' : '') + '<i>' + ps.one + '</i></span>' +
+          '<select data-act="reg" data-key="' + esc(p.key) + '" aria-label="Régularité de ' + esc(p.name) + '">' +
+          Object.keys(REG).map(function (r) { return '<option value="' + r + '"' + (p.reg === r ? ' selected' : '') + '>' + REG[r] + '</option>'; }).join('') +
+          '</select></div>';
+      });
+    });
+    $('reg-list').innerHTML = html;
+  }
+
+  function renderConstraints() {
+    var P = parsePlayers();
+    var opts = P.list.map(function (p) { return '<option value="' + esc(p.key) + '">' + esc(p.name) + '</option>'; }).join('');
+    var a = $('c-a').value, b = $('c-b').value;
+    $('c-a').innerHTML = opts; $('c-b').innerHTML = opts;
+    if (P.map[a]) $('c-a').value = a;
+    if (P.map[b]) $('c-b').value = b; else if (P.list.length > 1) $('c-b').selectedIndex = 1;
+    var html = '';
+    state.constraints.forEach(function (c, i) {
+      var pa = P.map[c.a], pb = P.map[c.b];
+      if (!pa || !pb) return;
+      html += '<li><span>' + esc(pa.name) + ' · <b>' + (c.type === 'together' ? 'toujours ensemble' : 'toujours séparés') + '</b> · ' + esc(pb.name) + '</span>' +
+        '<button class="lnk" type="button" data-act="del-cons" data-i="' + i + '">Retirer</button></li>';
+    });
+    $('cons-list').innerHTML = html || '<li class="muted small">Aucune contrainte.</li>';
+  }
+
+  function posLine(players) {
+    var c = {}; players.forEach(function (p) { c[p.pos] = (c[p.pos] || 0) + 1; });
+    return POS.map(function (ps) { return (c[ps.k] || 0) + ' ' + ps.k; }).join(' · ');
+  }
+  function playerLi(p, withBtn, side) {
+    return '<li><span class="nm">' + esc(p.name) + '</span>' + (withBtn ? '' : '<span class="ps">' + ABBR[p.pos] + '</span>') +
+      (p.stars ? '<span class="st" aria-label="' + p.stars + ' étoile(s)">' + starsStr(p.stars) + '</span>' : '') +
+      '<span class="rg ' + p.reg + '">' + REG_SHORT[p.reg] + '</span>' +
+      (withBtn ? '<button class="lnk" type="button" data-act="replace" data-key="' + esc(p.key) + '">Remplacer</button>' : '') + '</li>';
+  }
+
+  function teamHTML(side, P) {
+    var S = resolve(state.teams[side].s, P.map), B = resolve(state.teams[side].b, P.map), all = S.concat(B);
+    var stars = 0, regs = 0;
+    all.forEach(function (p) { stars += p.stars; if (p.reg === 'R') regs++; });
+    var html = '<article class="team ' + (side === 'B' ? 'b' : '') + '"><div class="team-head"><h3>CU95 · Équipe ' + side + '</h3><span>' + (side === 'A' ? 'Chasubles orange' : 'Chasubles bleues') + '</span></div>' +
+      '<div class="recap"><span><b>' + S.length + '</b> titulaires</span><span><b>' + B.length + '</b> remplaçants</span><span><b>' + stars + '</b> étoiles</span><span><b>' + regs + '</b> réguliers</span>' +
+      '<span class="full">Titulaires : ' + posLine(S) + '</span><span class="full">Banc : ' + posLine(B) + '</span></div>';
+    POS.forEach(function (ps) {
+      var gp = S.filter(function (p) { return p.pos === ps.k; }).sort(cmp);
+      if (!gp.length) return;
+      html += '<div class="grp"><h4>' + ps.label + '</h4><ul class="pl">';
+      gp.forEach(function (p) {
+        html += playerLi(p, true, side);
+        if (ui.replacing === p.key) {
+          var opts = B.slice().sort(function (a, b) { return ((b.pos === p.pos) - (a.pos === p.pos)) || (RANK[a.reg] - RANK[b.reg]) || cmp(a, b); });
+          if (!opts.length) {
+            html += '<li class="rep"><span class="muted small">Aucun remplaçant dans cette équipe.</span><button class="lnk" type="button" data-act="replace-cancel">Fermer</button></li>';
+          } else {
+            html += '<li class="rep"><select id="rep-sel" aria-label="Remplaçant de ' + esc(p.name) + '">' +
+              opts.map(function (q) { return '<option value="' + esc(q.key) + '">' + esc(q.name) + ' (' + ABBR[q.pos].replace('.', '') + (q.pos === p.pos ? ', même poste' : '') + ', ' + REG_SHORT[q.reg].toLowerCase() + ')</option>'; }).join('') +
+              '</select><button class="btn sec" type="button" data-act="replace-do" data-key="' + esc(p.key) + '" data-side="' + side + '">Remplacer</button><button class="lnk" type="button" data-act="replace-cancel">Annuler</button></li>';
+          }
+        }
+      });
+      html += '</ul></div>';
+    });
+    if (B.length) {
+      html += '<div class="grp bench"><h4>Remplaçants</h4><ul class="pl">' +
+        B.slice().sort(function (a, b) { return (POS.map(function (z) { return z.k; }).indexOf(a.pos) - POS.map(function (z) { return z.k; }).indexOf(b.pos)) || cmp(a, b); })
+          .map(function (p) { return playerLi(p, false, side); }).join('') + '</ul></div>';
+    }
+    return html + '<div class="team-foot"></div></article>';
+  }
+
+  function nextQuarter() { return state.quarter === 4 ? { q: 1, y: state.year + 1 } : { q: state.quarter + 1, y: state.year }; }
+
+  function renderTeams() {
+    var P = parsePlayers();
+    var actions = $('actions'), teams = $('teams'), extra = $('extra');
+    if (!state.teams) {
+      $('state-pill').innerHTML = '';
+      actions.innerHTML = '<button class="btn" type="button" data-act="gen">Mélanger</button>';
+      teams.innerHTML = '<div class="empty">Aucune équipe pour ' + esc(lbl()) + '. Vérifiez la liste des joueurs puis cliquez sur « Mélanger ».</div>';
+      extra.innerHTML = '';
+      return;
+    }
+    $('state-pill').innerHTML = state.locked ? '<span class="pill ok">Validées pour ' + esc(lbl()) + '</span>' : '<span class="pill">Brouillon, pas encore validé</span>';
+    var html = '';
+    if (state.locked) {
+      if (ui.confirmUnlock) {
+        var nq = nextQuarter();
+        html = '<span class="small">Les équipes actuelles passent dans l\'historique et un nouveau tirage est fait pour T' + nq.q + ' ' + nq.y + '.</span>' +
+          '<button class="btn" type="button" data-act="unlock-yes">Confirmer le nouveau tirage</button><button class="btn ghost" type="button" data-act="unlock-no">Annuler</button>';
+      } else {
+        html = '<button class="btn" type="button" data-act="copy">Copier pour WhatsApp</button><button class="btn ghost" type="button" data-act="unlock">Nouveau tirage</button>';
+      }
+    } else {
+      html = '<button class="btn" type="button" data-act="gen">Mélanger à nouveau</button><button class="btn sec" type="button" data-act="lock">Valider et verrouiller</button><button class="btn ghost" type="button" data-act="copy">Copier pour WhatsApp</button>';
+    }
+    actions.innerHTML = html;
+    teams.innerHTML = '<div class="teams">' + teamHTML('A', P) + teamHTML('B', P) + '</div>';
+    var inT = {}; allKeys('A').concat(allKeys('B')).forEach(function (k) { inT[k] = 1; });
+    var un = P.list.filter(function (p) { return !inT[p.key]; });
+    extra.innerHTML = un.length ? '<p class="warn small">Pas encore dans une équipe (ajoutés à la liste après le tirage) : mélangez à nouveau, ou utilisez « Ajouter un joueur ».</p><div class="chips" style="margin-top:8px">' +
+      un.map(function (p) { return '<span class="chip">' + esc(p.name) + '</span>'; }).join('') + '</div>' : '';
+  }
+
+  function renderHistory() {
+    if (!state.history.length) { $('hist').innerHTML = '<div class="empty">Les équipes validées apparaîtront ici, trimestre après trimestre.</div>'; return; }
+    $('hist').innerHTML = state.history.slice().reverse().map(function (h) {
+      function col(t, arr) {
+        var s = arr.filter(function (p) { return !p.b; }).map(function (p) { return esc(p.n); }).join(', ');
+        var b = arr.filter(function (p) { return p.b; }).map(function (p) { return esc(p.n); }).join(', ');
+        return '<div><b>' + t + '</b><br>' + s + (b ? '<br><span class="muted">Banc : ' + b + '</span>' : '') + '</div>';
+      }
+      return '<details><summary>' + esc(h.label) + ' · ' + (h.A.length + h.B.length) + ' joueurs</summary><div class="hist-cols">' + col('Équipe A', h.A) + col('Équipe B', h.B) + '</div></details>';
+    }).join('<div style="height:8px"></div>');
+  }
+
+  function renderReset() {
+    $('reset-zone').innerHTML = ui.confirmReset
+      ? '<span class="small">Tout effacer (liste, équipes, historique) et revenir à l\'exemple ?</span><button class="btn" type="button" data-act="reset-yes">Oui, réinitialiser</button><button class="btn ghost" type="button" data-act="reset-no">Annuler</button>'
+      : '<button class="btn ghost" type="button" data-act="reset">Réinitialiser</button>';
+  }
+
+  function renderAll() { renderHeader(); renderRegList(); renderConstraints(); renderTeams(); renderHistory(); renderReset(); }
+  function renderDynamic() { $('qbadge').textContent = lbl(); $('example-note').hidden = !state.example; renderRegList(); renderConstraints(); renderTeams(); }
+
+  /* Texte à partager */
+  function shareText() {
+    var P = parsePlayers(), lines = ['⚽ CERGY UNITED 95 (#CU95)', 'Équipes du ' + lbl() + (state.locked ? '' : ' (provisoire)'), ''];
+    [['A', '🟠 Équipe A'], ['B', '🔵 Équipe B']].forEach(function (s) {
+      lines.push(s[1]);
+      var S = resolve(state.teams[s[0]].s, P.map), B = resolve(state.teams[s[0]].b, P.map);
+      POS.forEach(function (ps) {
+        var ns = S.filter(function (p) { return p.pos === ps.k; }).sort(cmp).map(function (p) { return p.name; });
+        if (ns.length) lines.push(ps.label + ' : ' + ns.join(', '));
+      });
+      if (B.length) lines.push('Remplaçants : ' + B.sort(cmp).map(function (p) { return p.name; }).join(', '));
+      lines.push('');
+    });
+    return lines.join('\n').trim();
+  }
+  function copyShare() {
+    var text = shareText();
+    function fallback() {
+      $('fallback').innerHTML = '<label for="fb-ta">Copiez ce texte (appui long, puis Copier)<textarea id="fb-ta" readonly></textarea></label>';
+      var ta = $('fb-ta'); ta.value = text; ta.focus(); ta.select();
+      setStatus('La copie automatique est refusée ici. Le texte est prêt à copier ci-dessous.', true);
+    }
+    $('fallback').innerHTML = '';
+    try {
+      navigator.clipboard.writeText(text).then(function () { setStatus('Texte copié, prêt à coller dans WhatsApp.'); }, fallback);
+    } catch (e) { fallback(); }
+  }
+
+  /* Actions */
+  function pushHistory() {
+    var P = parsePlayers();
+    function pack(side) {
+      return resolve(state.teams[side].s, P.map).map(function (p) { return { k: p.key, n: p.name, b: 0 }; })
+        .concat(resolve(state.teams[side].b, P.map).map(function (p) { return { k: p.key, n: p.name, b: 1 }; }));
+    }
+    var entry = { label: lbl(), A: pack('A'), B: pack('B') };
+    state.history = state.history.filter(function (h) { return h.label !== entry.label; });
+    state.history.push(entry);
+    if (state.history.length > 12) state.history = state.history.slice(-12);
+  }
+  function runGenerate() {
+    var r = generate();
+    ui.replacing = null; $('fallback').innerHTML = '';
+    if (!r.ok) { setStatus(r.msg, true); return; }
+    setStatus(r.msg || 'Nouvelle composition prête. Elle n\'est pas encore validée.', !!r.msg);
+  }
+  function placeNew(key, P) {
+    var p = P.map[key], best = null;
+    function stat(side) {
+      var arr = resolve(allKeys(side), P.map).filter(function (q) { return q.key !== key; });
+      return { c: arr.filter(function (q) { return q.pos === p.pos; }).length, s: arr.reduce(function (a, q) { return a + q.stars; }, 0), n: arr.length };
+    }
+    var a = stat('A'), b = stat('B');
+    if (a.c !== b.c) best = a.c < b.c ? 'A' : 'B';
+    else if (a.s !== b.s) best = a.s < b.s ? 'A' : 'B';
+    else if (a.n !== b.n) best = a.n < b.n ? 'A' : 'B';
+    else best = Math.random() < 0.5 ? 'A' : 'B';
+    var T = state.teams[best];
+    (T.s.length < startSize() ? T.s : T.b).push(key);
+    return best;
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-act]') : null;
+    if (!t || t.tagName === 'SELECT') return;
+    var act = t.getAttribute('data-act');
+    if (act === 'gen') { runGenerate(); }
+    else if (act === 'lock') { state.locked = true; pushHistory(); setStatus('Équipes validées pour ' + lbl() + '. Elles ne changent plus jusqu\'au prochain tirage.'); }
+    else if (act === 'copy') { copyShare(); return; }
+    else if (act === 'unlock') { ui.confirmUnlock = true; }
+    else if (act === 'unlock-no') { ui.confirmUnlock = false; }
+    else if (act === 'unlock-yes') {
+      var nq = nextQuarter(); state.quarter = nq.q; state.year = nq.y; ui.confirmUnlock = false; runGenerate();
+    }
+    else if (act === 'replace') { ui.replacing = t.getAttribute('data-key'); }
+    else if (act === 'replace-cancel') { ui.replacing = null; }
+    else if (act === 'replace-do') {
+      var out = t.getAttribute('data-key'), side = t.getAttribute('data-side'), inn = $('rep-sel') && $('rep-sel').value;
+      if (inn && state.teams[side]) {
+        var T = state.teams[side], i = T.s.indexOf(out), j = T.b.indexOf(inn);
+        if (i >= 0 && j >= 0) { T.s[i] = inn; T.b[j] = out; if (state.locked) pushHistory(); setStatus('Remplacement effectué.'); }
+      }
+      ui.replacing = null;
+    }
+    else if (act === 'add-player') {
+      var name = $('np-name').value.trim(), pos = $('np-pos').value, stars = parseInt($('np-stars').value, 10) || 0, reg = $('np-reg').value;
+      if (!name) { setStatus('Saisissez le nom du joueur.', true); $('np-name').focus(); return; }
+      var key = pos + '|' + name.toLowerCase();
+      if (parsePlayers().map[key]) { setStatus(name + ' est déjà dans la liste à ce poste.', true); return; }
+      var cur = state.roster[pos] || '';
+      state.roster[pos] = cur + (cur && !/\n$/.test(cur) ? '\n' : '') + '*'.repeat(stars) + name;
+      state.reg[key] = reg; state.example = false;
+      $('ta-' + pos).value = state.roster[pos];
+      var sd = null;
+      if (state.teams) { sd = placeNew(key, parsePlayers()); if (state.locked) pushHistory(); }
+      $('np-name').value = '';
+      setStatus(name + ' ajouté' + (sd ? ' à l\'équipe ' + sd + '.' : ' à la liste.'));
+    }
+    else if (act === 'add-cons') {
+      var ka = $('c-a').value, kb = $('c-b').value;
+      if (!ka || !kb || ka === kb) { setStatus('Choisissez deux joueurs différents.', true); return; }
+      state.constraints.push({ a: ka, b: kb, type: $('c-t').value });
+      setStatus('Contrainte ajoutée. Elle s\'applique au prochain mélange.');
+    }
+    else if (act === 'del-cons') { state.constraints.splice(parseInt(t.getAttribute('data-i'), 10), 1); }
+    else if (act === 'reset') { ui.confirmReset = true; }
+    else if (act === 'reset-no') { ui.confirmReset = false; }
+    else if (act === 'reset-yes') {
+      state = exampleState(); ui = { replacing: null, confirmUnlock: false, confirmReset: false };
+      generate(); save(); renderStaticFields(); renderRosterFields(); renderAll(); setStatus('Données réinitialisées.'); return;
+    }
+    save(); renderDynamic(); renderHistory(); renderReset();
+  });
+
+  document.addEventListener('change', function (e) {
+    var t = e.target, act = t.getAttribute && t.getAttribute('data-act');
+    if (act === 'reg') {
+      state.reg[t.getAttribute('data-key')] = t.value; state.example = false; save(); renderDynamic();
+      return;
+    }
+    if (t.id === 'q-sel') { state.quarter = parseInt(t.value, 10); }
+    else if (t.id === 'q-year') { state.year = Math.max(2000, Math.min(2100, parseInt(t.value, 10) || state.year)); }
+    else if (/^f-[A-Z]+$/.test(t.id)) { state.formation[t.id.slice(2)] = Math.max(0, Math.min(11, parseInt(t.value, 10) || 0)); renderFormationTotal(); }
+    else if (t.id === 'avoid') { state.avoidRepeat = t.checked; }
+    else return;
+    save(); renderHeader();
+  });
+
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.tagName === 'TEXTAREA' && t.getAttribute('data-pos')) {
+      state.roster[t.getAttribute('data-pos')] = t.value; state.example = false; save(); renderDynamic();
+    }
+  });
+
+  /* Démarrage */
+  renderStaticFields();
+  renderRosterFields();
+  if (!state.teams && state.example) generate();
+  renderAll();
+})();
+</script>
+
+</body>
+</html>
